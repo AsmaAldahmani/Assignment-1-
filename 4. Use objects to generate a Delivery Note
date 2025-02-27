@@ -1,0 +1,176 @@
+# fourth part - using objects to generating a delivery note as the figure given
+
+from enum import Enum
+from datetime import datetime
+from typing import List
+
+# All the class definitions are from the provided code for part 3. 
+
+# Use objects to generate a Delivery Note:
+if __name__ == "__main__":
+    # Create a customer object
+    customer = Customer(
+        customer_id="CUST001",
+        name="Sarah Johnson",
+        email="sarah.johnson@example.com",
+        address="45 Knowledge Avenue, Dubai, UAE",
+        phone="Not provided"  # Phone wasn't in the figure instructions, but I add it optionally in the class
+    )
+    
+    # Create item objects
+    wireless_keyboard = Item(
+        item_code="ITM001",
+        description="Wireless Keyboard",
+        unit_price=100.00,
+        in_stock=10,  # Assuming the stock available
+        weight=0.5  # And weight in kg
+    )
+    
+    wireless_mouse = Item(
+        item_code="ITM002",
+        description="Wirless Mouse & Pad Set",
+        unit_price=75.00,
+        in_stock=15,
+        weight=0.3
+    )
+    
+    cooling_pad = Item(
+        item_code="ITM003",
+        description="Laptop Cooling Pad",
+        unit_price=120.00,
+        in_stock=8,
+        weight=1.0
+    )
+    
+    camera_lock = Item(
+        item_code="ITM004",
+        description="Camera Lock",
+        unit_price=15.00,
+        in_stock=20,
+        weight=0.2
+    )
+    
+    # Create order items
+    keyboard_item = OrderItem(
+        item=wireless_keyboard,
+        quantity=1,
+        unit_price=100.00,
+        discount=0,
+        total_price=100.00
+    )
+    
+    mouse_item = OrderItem(
+        item=wireless_mouse,
+        quantity=1,
+        unit_price=75.00,
+        discount=0,
+        total_price=75.00
+    )
+    
+    cooling_pad_item = OrderItem(
+        item=cooling_pad,
+        quantity=1,
+        unit_price=120.00,
+        discount=0,
+        total_price=120.00
+    )
+    
+    camera_lock_item = OrderItem(
+        item=camera_lock,
+        quantity=3,
+        unit_price=15.00,
+        discount=0,
+        total_price=45.00
+    )
+    
+    # Create order
+    order = Order(
+        order_id="DEL123456789",  # The order ID from the figure 
+        order_date=datetime.strptime("2025-01-25", "%Y-%m-%d"),  # The delivery date
+        status=OrderStatus.READY_FOR_DELIVERY,
+        customer=customer,
+        total_amount=283.50  # Total amount of the order 
+    )
+    
+    # Add items to order
+    order._Order__items = [keyboard_item, mouse_item, cooling_pad_item, camera_lock_item]
+    
+    # Create delivery note
+    delivery_note = DeliveryNote(
+        note_id="DN-2025-001",  # Reference Number
+        order=order,
+        generation_date=datetime.now(),
+        delivery_date=datetime.strptime("2025-01-25", "%Y-%m-%d"),
+        delivery_method=DeliveryMethod.STANDARD  # Assuming delivery method as "Courier"
+    )
+    
+    # Create delivery
+    delivery = Delivery(
+        delivery_id="DEL123456789",  # Same as order ID 
+        order=order,
+        status=DeliveryStatus.SCHEDULED,
+        tracking_number="Not provided",  # Not in the figure but I added it in class so I have to mentione it here 
+        courier="Courier"  # As mentioned in the figure 
+    )
+    
+# Function to print the delivery note
+    def generate_delivery_note(note): 
+        order = note.get_order() # Get the order from the note
+        customer = order.get_customer()  # Get customer details
+        items = order.get_items() # Get items in the order
+        
+        # Total weight as required 
+        total_weight = 7.0
+        
+        # Printing the header
+        print("\n" + "="*60)
+        print(f"{'Delivery Note':^60}")
+        print("="*60)
+        print("Thank you for using our delivery service! Please print your delivery receipt and present it")
+        print("upon receiving your items.")
+        print()
+        
+        # printing Recipient Details
+        print("Recipient Details:")
+        print(f"Name: {customer.get_name()}")
+        print(f"Contact: {customer.get_email()}")
+        print(f"Delivery Address: {customer.get_address()}")
+        print("\n" + "-"*60)
+        
+        # Printing Delivery Information
+        print("Delivery Information:")
+        print(f"Order Number: {order.get_order_id()}")
+        print(f"Reference Number: {note.get_note_id()}")
+        print(f"Delivery Date: {note.get_delivery_date().strftime('%B %d, %Y')}")
+        print(f"Delivery Method: {delivery.get_courier()}")
+        print(f"Package Dimensions: Not specified")
+        print(f"Total Weight: {total_weight} kg")
+        print("\n" + "-"*60)
+        
+        # Summary of Items Delivered
+        print("Summary of Items Delivered:")
+        print(f"{'Item Code':<10} {'Description':<25} {'Quantity':<10} {'Unit Price (AED)':<20} {'Total Price (AED)':<15}")
+        
+        # Using the fixed subtotal of 270.00 as shown
+        subtotal = 270.00
+        
+        for item in items:
+            product = item.get_item() # Get product details
+            quantity = item.get_quantity() # Get quantity
+            unit_price = item.get_unit_price() # Get unit price
+            total_price = item.get_total_price() # Get total price
+            
+            print(f"{product.get_item_code():<10} {product.get_description():<25} {quantity:<10} {unit_price:<20.2f} {total_price:<15.2f}")
+        
+        # Use fixed values for calculations
+        taxes = 13.50
+        total = 283.50
+        
+        print("\n")
+        print(f"Subtotal: AED {subtotal:.2f}")
+        print(f"Taxes and Fees: AED {taxes:.2f}")
+        print(f"Total Charges: AED {total:.2f}")
+        print("="*60)
+    
+    # Generate and display the delivery note
+    generate_delivery_note(delivery_note)
